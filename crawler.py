@@ -46,6 +46,6 @@ df = crawl()
 
 # 儲存為 CSV (最常用)
 today = datetime.datetime.now().strftime("%Y%m%d")
-df.to_csv(f'stock_dist_{today}.csv', encoding='utf_8_sig')
+df.to_csv(f'data/stock_dist_{today}.csv', encoding='utf_8_sig')
 print("存檔完成！")
 
