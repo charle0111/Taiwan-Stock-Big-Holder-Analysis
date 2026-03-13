@@ -46,8 +46,16 @@ df = crawl()
 
 # 儲存為 CSV (最常用)
 import os
-today = datetime.datetime.now().strftime("%Y%m%d")
-os.makedirs("data", exist_ok=True)
-df.to_csv(f'data/stock_dist_{today}.csv', encoding='utf_8_sig')
-print("存檔完成！")
+import datetime
 
+today = datetime.datetime.now().strftime("%Y%m%d")
+year = today[:4]
+
+# 建立 data/年份 資料夾
+folder = f"data/{year}"
+os.makedirs(folder, exist_ok=True)
+
+# 存檔
+df.to_csv(f"{folder}/stock_dist_{today}.csv", encoding='utf_8_sig')
+
+print("存檔完成！")
