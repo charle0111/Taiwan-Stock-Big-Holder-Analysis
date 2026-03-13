@@ -1,0 +1,36 @@
+name: WeeklyDataCollector
+
+on:
+  schedule:
+    # 台灣時間每週六凌晨 02:00 執行 (UTC 18:00 Friday)
+    - cron: '0 18 * * 5'
+  workflow_dispatch: # 這行讓你可以在網頁上手動按「立即執行」
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # 賦予 GitHub Actions 寫入權限，這很重要
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: pip install requests
+
+    - name: Run crawler
+      run: python crawler.py
+
+    - name: Commit and Push
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add data/*.csv
+        git commit -m "Auto add data: $(date +'%Y-%m-%d')" || exit 0
+        git push
