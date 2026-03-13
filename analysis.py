@@ -18,7 +18,7 @@ thresholds = {
 
 # 解決中文亂碼
 import matplotlib.pyplot as plt
-plt.rcParams['font.sans-serif'] = ['Noto Sans CJK JP']  # 中文可顯示
+plt.rcParams['font.sans-serif'] = ['SimHei']  # 黑體，Colab 內建
 plt.rcParams['axes.unicode_minus'] = False
 
 all_data = []
