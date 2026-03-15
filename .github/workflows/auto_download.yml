@@ -2,36 +2,45 @@ name: WeeklyDataCollector
 
 on:
   schedule:
-    - cron: '0 18 * * 5'
+    - cron: '0 18 * * 5'   # 台灣星期六 02:00 (UTC+8)
   workflow_dispatch:
 
 jobs:
-  build:
+  crawler:
     runs-on: ubuntu-latest
 
     permissions:
       contents: write
 
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.9'
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
 
-    - name: Install dependencies
-      run: pip install requests pandas
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pandas requests
 
-    - name: Run crawler
-      run: |
-        mkdir -p data
-        python crawler.py
+      - name: Run crawler
+        run: |
+          mkdir -p data
+          python crawler.py
 
-    - name: Commit and Push
-      run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git add data/*.csv
-        git commit -m "Auto add data: $(date +'%Y-%m-%d')" || exit 0
-        git push
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "github-actions@github.com"
+          git config --local user.name "GitHub Action"
+
+          git add data/
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto update TDCC data: $(date +'%Y-%m-%d')"
+            git push
+          fi
