@@ -30,7 +30,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: 執行爬蟲
-        run: python tdcc_stock_crawler.py
+        run: python tdcc_crawler_history.py
 
       - name: Commit CSV
         run: |
