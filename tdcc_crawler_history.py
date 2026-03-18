@@ -9,7 +9,8 @@ import time
 import os
 
 # ===== 設定股票代號 =====
-stock_list = ["2317", "2915", "2330", "8271", "3645"]
+#stock_list = ["2317", "2915", "2330", "8271", "3645"]
+stock_list = ["2317"]
 incremental = True
 
 print("啟動瀏覽器")
