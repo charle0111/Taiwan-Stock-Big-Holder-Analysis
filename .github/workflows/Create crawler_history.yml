@@ -2,8 +2,11 @@ name: TDCC Crawler
 
 on:
   schedule:
-    - cron: '0 2 * * 1'   # 每週一 台灣時間10點
+    - cron: '0 2 * * 1'
   workflow_dispatch:
+
+permissions:
+  contents: write   # ⭐ 關鍵
 
 jobs:
   run:
@@ -24,11 +27,10 @@ jobs:
           sudo apt install -y google-chrome-stable
 
       - name: 安裝套件
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: 執行爬蟲
-        run: python tdcc_crawler_history.py
+        run: python tdcc_stock_crawler.py
 
       - name: Commit CSV
         run: |
