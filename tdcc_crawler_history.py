@@ -40,7 +40,7 @@ print("可查詢日期數:", len(dates))
 
 for stock_id in stock_list:
     print("\n===== 處理股票：", stock_id, "=====")
-    file_name = f"tdcc_{stock_id}_history.csv"
+    file_name = f"data/tdcc_{stock_id}_history.csv"
 
     if os.path.exists(file_name):
         try:
