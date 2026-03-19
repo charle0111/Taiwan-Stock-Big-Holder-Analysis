@@ -10,7 +10,9 @@ def get_stock_name_map(base_dir):
 
     if file_name.exists():
         print(f"✅ 成功載入本地對照表 ({file_name})")
+        # 確保讀取時 stock_id 是字串，並過濾掉可能的空白
         df = pd.read_csv(file_name, dtype={'stock_id': str}, encoding='utf_8_sig')
+        df['stock_id'] = df['stock_id'].astype(str).str.strip()
         return dict(zip(df['stock_id'], df['stock_name']))
     else:
         print(f"⚠️ 找不到 {file_name}，將僅顯示代號。")
@@ -35,7 +37,6 @@ def find_latest_two_stock_dist_files(folder):
 # --- 讀取並計算統計 ---
 def load_and_compute_stats(file_path):
     df = None
-
     for enc in ['utf_8_sig', 'cp950', 'utf-8', 'big5']:
         try:
             df = pd.read_csv(file_path, encoding=enc, dtype={'stock_id': str})
@@ -49,16 +50,21 @@ def load_and_compute_stats(file_path):
 
     df.columns = [c.strip() for c in df.columns]
 
+    # 自動偵測欄位名
     col_stock = next((c for c in df.columns if 'stock_id' in c or '證券代號' in c), 'stock_id')
     col_level = next((c for c in df.columns if '持股分級' in c), '持股分級')
     col_shares = next((c for c in df.columns if '持有股數' in c and '比例' not in c), '持有股數')
 
+    # 資料清理
+    df[col_stock] = df[col_stock].astype(str).str.strip()
     df[col_shares] = pd.to_numeric(df[col_shares].astype(str).str.replace(',', ''), errors='coerce').fillna(0)
     df[col_level] = pd.to_numeric(df[col_level], errors='coerce')
 
+    # 計算總股數 (第 17 級通常是合計)
     totals = df[df[col_level] == 17].set_index(col_stock)[col_shares]
 
     def sum_range(low, high):
+        # 這裡 groupby 之後，index 可能會變回數值，最後要轉回字串
         return df[df[col_level].between(low, high)].groupby(col_stock)[col_shares].sum()
 
     s100 = sum_range(10, 15)
@@ -71,19 +77,20 @@ def load_and_compute_stats(file_path):
         '1000plus': (s1000 / totals * 100)
     }).fillna(0)
 
+    # 【重要】確保 index (stock_id) 回傳時是字串型態
+    res.index = res.index.astype(str)
+    
     return res
 
 # --- 主程式 ---
 def main():
-    # 📌 判斷執行目錄（支援 Colab / 本機）
     if "__file__" in globals():
         base_dir = Path(__file__).parent
     else:
-        # Colab fallback（你可以改成你的專案路徑）
+        # Colab 環境請確保此路徑正確
         base_dir = Path("/content/Taiwan-Stock-Big-Holder-Analysis")
 
     folder = Path(sys.argv[1]) if len(sys.argv) > 1 else base_dir
-
     print(f"📂 搜尋目錄: {folder}")
 
     files = find_latest_two_stock_dist_files(folder)
@@ -93,7 +100,6 @@ def main():
         return
 
     latest_file, prev_file = files[0], files[1]
-
     print(f"📊 比較基準: {prev_file.name} -> 最新: {latest_file.name}")
 
     curr_stats = load_and_compute_stats(latest_file)
@@ -103,38 +109,42 @@ def main():
         print("❌ CSV 讀取失敗")
         return
 
+    # 合併兩次統計資料
     merged = curr_stats.join(prev_stats, lsuffix='_curr', rsuffix='_prev')
 
+    # 計算差異
     merged['diff_100plus'] = merged['100plus_curr'] - merged['100plus_prev']
     merged['diff_400plus'] = merged['400plus_curr'] - merged['400plus_prev']
     merged['diff_1000plus'] = merged['1000plus_curr'] - merged['1000plus_prev']
 
-    # 股票名稱
+    # 取得股票名稱對照表
     name_map = get_stock_name_map(base_dir)
 
     merged = merged.reset_index()
     merged.rename(columns={'index': 'stock_id'}, inplace=True)
+    
+    # 【核心修正】再次確保 stock_id 為字串，以利與字典對應
+    merged['stock_id'] = merged['stock_id'].astype(str).str.strip()
     merged['股票名稱'] = merged['stock_id'].map(name_map).fillna("未知")
 
-    # 排序
+    # 排序：依 100張大戶增加比例降序
     result = merged.sort_values('diff_100plus', ascending=False)
 
-    # 顯示前20名
+    # 顯示前 20 名
     display_cols = ['stock_id', '股票名稱', '100plus_prev', '100plus_curr', 'diff_100plus']
     output = result[display_cols].head(20).copy()
 
+    # 格式化百分比顯示
     for col in ['100plus_prev', '100plus_curr', 'diff_100plus']:
         output[col] = output[col].map("{:.2f}%".format)
 
     print("\n=== 100張以上大戶比例增加前 20 名 ===")
     print(output.to_string(index=False))
 
-    # 輸出 CSV
+    # 輸出完整結果 CSV
     output_file = base_dir / "100plus_change_report.csv"
     result.to_csv(output_file, encoding='utf_8_sig', index=False)
-
     print(f"\n📁 完整結果已存至: {output_file.resolve()}")
 
-# --- 執行 ---
 if __name__ == '__main__':
     main()
