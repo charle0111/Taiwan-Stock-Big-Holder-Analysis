@@ -6,7 +6,7 @@ import pandas as pd
 
 # --- 修改：從本地 CSV 讀取股票名稱對照表 ---
 def get_stock_name_map():
-    file_name = "data\stock_list.csv"
+    file_name = "data/stock_list.csv"
     if os.path.exists(file_name):
         print(f"✅ 成功載入本地對照表 ({file_name})")
         # 強制將 stock_id 讀為字串，避免 0050 變成 50
