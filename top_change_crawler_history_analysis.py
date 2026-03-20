@@ -16,8 +16,19 @@ if len(sys.argv) <= 1:
     print("使用範例: python xxx.py 2330 2317 2454")
     sys.exit()
 
-# 支援多股票
-stock_ids = sys.argv[1:]
+# ⭐ 判斷是否為 all
+if sys.argv[1].lower() == "all":
+    print("模式：讀取 CSV 全部股票")
+    df = pd.read_csv("100plus_change_report.csv")
+    # 👉 可調整要取幾筆
+    stock_ids = df['stock_id'].head(3).astype(str).tolist()
+    print(f"從 CSV 取得股票: {stock_ids}")
+else:
+    print("模式：手動輸入股票")
+    # 👉 支援多股票
+    stock_ids = sys.argv[1:]
+    print(f"輸入股票: {stock_ids}")
+
 print(f"本次處理股票: {stock_ids}")
 
 def analyze_stock(stock_id):
