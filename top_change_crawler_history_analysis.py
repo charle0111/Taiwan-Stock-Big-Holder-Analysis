@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import mplcursors
 import matplotlib.dates as mpl_dates
 import sys
+import os
 
 # 檢查參數數量，sys.argv[0] 是檔名，所以長度必須大於 1
 if len(sys.argv) <= 1:
@@ -16,12 +17,27 @@ stock_id = sys.argv[1]
 print(f"目前處理的股票代號是: {stock_id}")
 
 # 1. 讀取資料
-file_path = fr'data\tdcc_{stock_id}_history.csv'
+file_path = f'/content/Taiwan-Stock-Big-Holder-Analysis/data/tdcc_{stock_id}_history.csv'
 
-try:
-    df = pd.read_csv(file_path, encoding='cp950')
-except:
-    df = pd.read_csv(file_path, encoding='utf-8')
+# 先檢查檔案是否存在
+if not os.path.exists(file_path):
+    print(f"❌ 錯誤：找不到檔案！")
+    print(f"請確認路徑是否正確：{file_path}")
+    print(f"提示：請先執行爬蟲程式，確認 data 資料夾內有產出 tdcc_{stock_id}_history.csv 檔案。")
+    # 如果是在 script 中執行，可以使用 sys.exit() 結束
+    # sys.exit() 
+else:
+    # 檔案存在，嘗試用不同編碼讀取
+    try:
+        df = pd.read_csv(file_path, encoding='cp950')
+        print(f"✅ 成功讀取資料 (cp950): {stock_id}")
+    except Exception:
+        try:
+            df = pd.read_csv(file_path, encoding='utf-8')
+            print(f"✅ 成功讀取資料 (utf-8): {stock_id}")
+        except Exception as e:
+            print(f"❌ 檔案讀取失敗：可能是格式或編碼錯誤。")
+            print(f"詳細錯誤訊息: {e}")
 
 # --- 徹底重新對齊欄位，動態配對欄位名稱 ---
 # 例如可能欄位：date, 持股分級, 人數, 股數, 占集保庫存數比例, 占集保庫存數比例_累計
