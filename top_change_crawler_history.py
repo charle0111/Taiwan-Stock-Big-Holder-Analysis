@@ -11,8 +11,8 @@ import os
 # ===== 設定股票代號 =====
 # 讀取 CSV 檔案
 df = pd.read_csv("100plus_change_report.csv")
-# 取出 stock_id 欄位的前 3 筆內容
-stock_list = df['stock_id'].head(3).tolist()
+# 取出 stock_id 欄位的前 10 筆內容
+stock_list = df['stock_id'].head(10).tolist()
 print(stock_list)
 
 #stock_list = ["2317"]
