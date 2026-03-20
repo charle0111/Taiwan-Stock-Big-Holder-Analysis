@@ -29,8 +29,11 @@ jobs:
       - name: 安裝套件
         run: pip install -r requirements.txt
 
-      - name: 執行爬蟲
-        run: python tdcc_crawler_history.py
+      - name: 執行分析 找集保增加前幾名公司
+        run: python top_change_analysis.py
+
+      - name: 執行爬蟲 下載集保公司歷史資料
+        run: python top_change_crawler_history.py
 
       - name: Commit CSV
         run: |
