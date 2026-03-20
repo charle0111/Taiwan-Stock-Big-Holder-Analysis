@@ -36,7 +36,7 @@ def analyze_stock(stock_id):
     print(f"\n====== 處理 {stock_id} ======")
 
     # 1. 讀取資料
-    file_path = f'/content/Taiwan-Stock-Big-Holder-Analysis/data/tdcc_{stock_id}_history.csv'
+    file_path = f'/content/Taiwan-Stock-Big-Holder-Analysis/data/history/tdcc_{stock_id}_history.csv'
 
     # 先檢查檔案是否存在
     if not os.path.exists(file_path):
