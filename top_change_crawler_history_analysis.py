@@ -121,12 +121,6 @@ for col in ['1000張以上(%)', '400張以上(%)', '100張以上(%)']:
 analysis_df['400張以上(%)'] = analysis_df[['400張以上(%)', '1000張以上(%)']].max(axis=1)
 analysis_df['100張以上(%)'] = analysis_df[['100張以上(%)', '400張以上(%)']].max(axis=1)
 
-# --- 除錯檢驗：如果還是 0，這段會告訴我們原因 ---
-print("--- 原始資料前五行 ---")
-print(df[[col_level_str, col_count_str, col_percent_str]].head())
-print("\n--- 整理後數據 ---")
-print(analysis_df)
-
 # 針對你給的日期 (2026-03-06, 2026-03-13) 顯示內容
 for d in ['2026-03-06', '2026-03-13']:
     dt = pd.to_datetime(d)
@@ -151,8 +145,8 @@ if analysis_df['100張以上(%)'].sum() == 0:
     print("已計算欄位:\n", analysis_df.columns.tolist())
 else:
     # --- 繪圖 ---
-    plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei'] 
-    plt.rcParams['axes.unicode_minus'] = False
+    plt.rcParams['font.sans-serif'] = ['Noto Sans CJK JP'] 
+    plt.rcParams['axes.unicode_minus'] = False # 解決負號顯示問題
 
     fig, ax1 = plt.subplots(figsize=(12, 7))
 
@@ -178,4 +172,8 @@ else:
         sel.annotation.set_text(f"{date}\n{y:.2f}%")
 
     plt.title(f'{stock_id}：100張/400張/1000張大戶籌碼分析')
+    plt.savefig('analysis_result.png', dpi=300)
+    print("圖表已儲存為 analysis_result.png，請點擊左側資料夾下載查看。")
     plt.show()
+
+
