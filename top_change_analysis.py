@@ -125,8 +125,12 @@ def main():
     
     # 【核心修正】再次確保 stock_id 為字串，以利與字典對應
     merged['stock_id'] = merged['stock_id'].astype(str).str.strip()
-    merged['股票名稱'] = merged['stock_id'].map(name_map).fillna("未知")
+    # 只保留 stock_list.csv 裡存在的股票
+    merged = merged[merged['stock_id'].isin(name_map.keys())]
+    # 再對應名稱（這時候不會有未知）
+    merged['股票名稱'] = merged['stock_id'].map(name_map)
 
+    
     # 排序：依 100張大戶增加比例降序
     result = merged.sort_values('diff_100plus', ascending=False)
 
