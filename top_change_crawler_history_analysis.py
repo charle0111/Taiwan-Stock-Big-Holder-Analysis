@@ -21,7 +21,7 @@ if sys.argv[1].lower() == "all":
     print("模式：讀取 CSV 全部股票")
     df = pd.read_csv("100plus_change_report.csv")
     # 👉 可調整要取幾筆
-    stock_ids = df['stock_id'].head(3).astype(str).tolist()
+    stock_ids = df['stock_id'].head(10).astype(str).tolist()
     print(f"從 CSV 取得股票: {stock_ids}")
 else:
     print("模式：手動輸入股票")
